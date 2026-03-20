@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Coach Bac — Centre de Pilotage</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#181612;--ink2:#3a3730;--ink3:#7c776e;--ink4:#b0aa9f;
+  --paper:#faf8f4;--paper2:#f4f1eb;--paper3:#ece8e0;--paper4:#e0dbd0;
+  --accent:#b85c1a;--accent2:#d4793a;--accent-light:#fdf2ea;
+  --gold:#9a7c35;--gold-light:#faf4e1;
+  --green:#2a5e42;--green-light:#eaf4ee;
+  --blue:#1a4d8a;--blue-light:#e8f0fb;
+  --red:#b02020;--red-light:#fdecea;
+  --border:#ddd8ce;--border2:#ccc6ba;
+  --r:10px;--rl:16px;
+}
+body{font-family:'Lato',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6}
+h1,h2,h3{font-family:'Playfair Display',serif}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.main{margin-left:230px;flex:1;min-width:0}
+.page{padding:36px 40px;display:none}
+.page.active{display:block}
+.s-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.s-logo h1{font-size:17px;color:#fff;line-height:1.25}
+.s-logo p{font-size:11px;color:rgba(255,255,255,.38);margin-top:3px}
+.s-nav{flex:1;padding:12px 8px}
+.s-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.28);text-transform:uppercase;padding:8px 4px 5px}
+.s-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:none;background:none;border-radius:8px;cursor:pointer;font-family:'Lato',sans-serif;font-size:13px;color:rgba(255,255,255,.55);transition:all .15s;text-align:left}
+.s-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.s-btn.on{background:rgba(184,92,26,.22);color:#d4793a}
+.s-foot{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.08)}
+.cd{background:rgba(184,92,26,.14);border:1px solid rgba(184,92,26,.28);border-radius:10px;padding:12px 14px}
+.cd-n{font-family:'Playfair Display',serif;font-size:28px;color:#d4793a;line-height:1}
+.cd-l{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
+.cd-s{font-size:10px;color:rgba(255,255,255,.28);margin-top:2px}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:22px 26px;box-shadow:0 1px 4px rgba(24,22,18,.06),0 4px 16px rgba(24,22,18,.04);margin-bottom:20px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-bottom:20px}
+.met{background:var(--paper2);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.met::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.m-ac::after{background:var(--accent)}.m-go::after{background:var(--gold)}
+.m-gr::after{background:var(--green)}.m-bl::after{background:var(--blue)}
+.m-lbl{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.m-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--ink);line-height:1}
+.m-sub{font-size:11px;color:var(--ink3);margin-top:4px}
+.prog{background:var(--paper3);border-radius:99px;height:5px;overflow:hidden;margin-top:8px}
+.prog-f{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+.prog-f.gold{background:linear-gradient(90deg,var(--gold),#c9a44a)}
+.prog-f.green{background:linear-gradient(90deg,var(--green),#3d8a5e)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.b-red{background:var(--red-light);color:var(--red)}.b-gold{background:var(--gold-light);color:var(--gold)}
+.b-green{background:var(--green-light);color:var(--green)}.b-blue{background:var(--blue-light);color:var(--blue)}.b-gray{background:var(--paper3);color:var(--ink3)}
+.ph{margin-bottom:26px}
+.ph h2{font-size:26px;color:var(--ink)}
+.ph p{font-size:13px;color:var(--ink3);margin-top:5px}
+.welcome{background:var(--ink);border-radius:var(--rl);padding:22px 28px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.wt h2{font-size:20px;color:#fff;line-height:1.3;margin-bottom:5px}
+.wt p{font-size:12px;color:rgba(255,255,255,.4)}
+.ws-row{display:flex;gap:22px;flex-shrink:0}
+.ws{text-align:center}
+.ws-v{font-family:'Playfair Display',serif;font-size:26px;color:#d4793a;line-height:1}
+.ws-l{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.qa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.qa-card{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;cursor:pointer;transition:all .15s}
+.qa-card:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.qa-ic{font-size:16px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.qa-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.qa-s{font-size:11px;color:var(--ink3)}
+.tbl{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--border)}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--paper3);font-size:13px;color:var(--ink2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--paper)}
+.stars{display:flex;gap:2px}
+.star{width:10px;height:10px;border-radius:50%}
+.star.on{background:var(--gold)}.star.off{background:var(--border)}
+.todo-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--paper3);cursor:pointer}
+.todo-item:last-child{border-bottom:none}
+.chk{width:19px;height:19px;border-radius:5px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .18s;background:#fff;font-size:11px;color:#fff;font-weight:700}
+.chk.on{background:var(--green);border-color:var(--green)}
+.td-txt{font-size:13px;color:var(--ink2);flex:1;line-height:1.5}
+.td-txt.done{color:var(--ink4);text-decoration:line-through}
+.td-meta{font-size:11px;color:var(--ink3);margin-top:2px}
+.ph-hd{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);padding:14px 0 7px;border-top:1px solid var(--paper3)}
+.ph-hd:first-child{border-top:none;padding-top:0}
+.prompt-dark{background:var(--ink);border-radius:var(--rl);padding:22px 26px;color:#fff;margin-bottom:18px}
+.prompt-dark h3{font-size:18px;color:#fff;margin-bottom:4px}
+.prompt-dark p{font-size:12px;color:rgba(255,255,255,.42);margin-bottom:16px}
+.p-sel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:9px 13px;color:#fff;font-family:'Lato',sans-serif;font-size:13px;width:100%;margin-bottom:12px;cursor:pointer}
+.p-sel option{background:#181612}
+.p-out{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:14px;font-size:13px;color:rgba(255,255,255,.78);line-height:1.7;min-height:90px;white-space:pre-wrap;font-family:'Lato',sans-serif}
+.copy-btn{background:var(--accent);border:none;border-radius:8px;padding:8px 18px;color:#fff;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;transition:background .15s}
+.copy-btn:hover{background:#a04d14}.copy-btn.ok{background:var(--green)}
+.obj-card{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;margin-bottom:12px}
+.obj-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.obj-n{font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);opacity:.3;line-height:1;flex-shrink:0;min-width:26px}
+input[type=number],input[type=text]{background:var(--paper2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Lato',sans-serif;font-size:12px;color:var(--ink);outline:none}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--accent2);background:#fff}
+textarea{width:100%;background:var(--paper2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-family:'Lato',sans-serif;font-size:13px;color:var(--ink);line-height:1.7;resize:vertical;min-height:180px;outline:none}
+textarea:focus{border-color:var(--accent2);background:#fff}
+.rev-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--paper3)}
+.rev-row:last-child{border-bottom:none}
+.rev-m{font-size:12px;font-weight:700;color:var(--ink2);min-width:36px}
+.rev-bar-w{flex:1;background:var(--paper3);border-radius:99px;height:7px;overflow:hidden}
+.rev-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#c9a44a);transition:width .5s}
+.lnk-card{background:linear-gradient(135deg,var(--paper2),var(--accent-light));border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden}
+.lnk-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:var(--accent)}
+.ltag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:5px}
+.lt-li{background:var(--blue-light);color:var(--blue)}.lt-obj{background:var(--accent-light);color:var(--accent)}
+.j-entry{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.j-entry:hover{border-color:var(--border2)}.j-entry.sel{border-color:var(--accent)}
+.j-date{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.j-prev{font-size:12px;color:var(--ink2);line-height:1.5}
+.j-empty{color:var(--ink4);font-style:italic}
+.weeks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.wk{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:all .15s}
+.wk:hover{border-color:var(--border2)}.wk.sel{border-color:var(--ink);background:var(--ink)}
+.wk-head{padding:11px 14px;border-bottom:1px solid var(--border)}
+.wk.sel .wk-head{border-color:rgba(255,255,255,.1)}
+.wk-num{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:2px}
+.wk.sel .wk-num{color:rgba(255,255,255,.38)}
+.wk-theme{font-family:'Playfair Display',serif;font-size:13px;color:var(--ink)}
+.wk.sel .wk-theme{color:#fff}
+.wk-tasks{padding:9px 14px}
+.wk-task{font-size:11px;color:var(--ink3);padding:3px 0;border-bottom:1px solid var(--paper3);display:flex;gap:5px}
+.wk-task:last-child{border-bottom:none}
+.wk.sel .wk-task{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.07)}
+.frise{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:22px 26px 18px;margin-bottom:22px}
+.frise-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.frise-title{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.frise-sub{font-size:11px;color:var(--ink3)}
+.frise-stats{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.frise-days-n{font-family:'Playfair Display',serif;font-size:24px;color:var(--accent);line-height:1;text-align:right}
+.frise-days-l{font-size:10px;color:var(--ink3);margin-top:2px;text-align:right}
+.frise-circ{width:46px;height:46px;border-radius:50%;border:2px solid var(--red);background:var(--red-light);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.frise-circ-n{font-size:13px;font-weight:700;color:var(--red);line-height:1}
+.frise-circ-l{font-size:8px;color:var(--red);margin-top:1px}
+.frise-axis-wrap{position:relative;margin:0 8px 0 8px}
+.frise-axis-bg{height:8px;background:var(--paper3);border-radius:99px;position:relative}
+.frise-axis-fill{position:absolute;top:0;left:0;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--accent),var(--accent2))}
+.frise-pin{position:absolute;top:-5px;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent);transform:translateX(-50%);z-index:5}
+.frise-pin-lbl{position:absolute;top:-26px;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.frise-ms-row{position:relative;height:76px;margin:5px 8px 0}
+.frise-ms{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;top:0}
+.frise-ms-dot{width:11px;height:11px;border-radius:50%;border:2px solid #fff}
+.frise-ms-stem{width:1.5px;height:10px;background:var(--border2)}
+.frise-ms-card{border-radius:6px;padding:4px 7px;margin-top:2px;white-space:nowrap;border:1px solid var(--border);background:var(--paper2)}
+.frise-ms-name{font-size:9px;font-weight:700;color:var(--ink2)}
+.frise-ms-date{font-size:8px;color:var(--ink3);margin-top:1px}
+.fms-past .frise-ms-dot{background:var(--green)}
+.fms-now .frise-ms-dot{background:var(--accent);box-shadow:0 0 0 3px rgba(184,92,26,.2)}
+.fms-future .frise-ms-dot{background:var(--border2)}
+.fms-crit .frise-ms-dot{background:var(--red)}
+.fms-crit .frise-ms-card{background:var(--red-light);border-color:#f09595}
+.fms-crit .frise-ms-name{color:var(--red)}
+.frise-phases{display:flex;gap:3px;margin:8px 8px 0}
+.frise-phase{border-radius:6px;padding:5px 8px;flex:1;min-width:0}
+.fp-name{font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp-wk{font-size:8px;opacity:.7;margin-top:1px}
+.fp1{background:var(--blue-light)}.fp1 .fp-name,.fp1 .fp-wk{color:var(--blue)}
+.fp2{background:var(--gold-light)}.fp2 .fp-name,.fp2 .fp-wk{color:var(--gold)}
+.fp3{background:var(--accent-light)}.fp3 .fp-name,.fp3 .fp-wk{color:var(--accent)}
+.fp4{background:var(--green-light)}.fp4 .fp-name,.fp4 .fp-wk{color:var(--green)}
+.fp5{flex:2;background:var(--red-light)}.fp5 .fp-name,.fp5 .fp-wk{color:var(--red)}
+.frise-div{height:1px;background:var(--paper3);margin:16px 0}
+.prio-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.prio-card{border:1px solid var(--border);border-radius:var(--r);padding:10px;background:var(--paper2)}
+.prio-top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.prio-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.prio-lv{font-size:11px;font-weight:700;color:var(--ink)}
+.prio-desc{font-size:10px;color:var(--ink3);line-height:1.4;margin-bottom:5px}
+.prio-ex{font-size:9px;color:var(--ink3);background:var(--paper3);border-radius:4px;padding:2px 5px;margin-top:2px;line-height:1.4}
+.chart-svg{width:100%;display:block}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--paper4);border-radius:99px}
+@media(max-width:860px){
+  .sidebar{width:52px}.s-logo,.s-lbl,.s-btn span,.s-foot{display:none}
+  .s-btn{justify-content:center;padding:12px}.main{margin-left:52px}
+  .page{padding:18px 12px}.g4{grid-template-columns:1fr 1fr}
+  .g2,.g3,.weeks,.qa{grid-template-columns:1fr}.prio-row{grid-template-columns:1fr 1fr}
+  .welcome{flex-direction:column}.ws-row{justify-content:center}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="s-logo"><h1>Coach Bac</h1><p>Centre de pilotage</p></div>
+    <nav class="s-nav">
+      <div class="s-lbl">Navigation</div>
+      <button class="s-btn on" data-page="accueil"><span>◈</span><span>Accueil</span></button>
+      <button class="s-btn" data-page="tracker"><span>◎</span><span>Tracker 90 jours</span></button>
+      <button class="s-btn" data-page="linkedin"><span>▦</span><span>Stratégie LinkedIn</span></button>
+      <button class="s-btn" data-page="connexions"><span>⇄</span><span>Connexions LI/90j</span></button>
+      <button class="s-btn" data-page="todo"><span>◻</span><span>To-do list</span></button>
+      <button class="s-btn" data-page="prompts"><span>◇</span><span>Prompts Gemini</span></button>
+      <button class="s-btn" data-page="journal"><span>▷</span><span>Journal quotidien</span></button>
+    </nav>
+    <div class="s-foot">
+      <div class="cd">
+        <div class="cd-n" id="cd-n">—</div>
+        <div class="cd-l">jours avant le Bac</div>
+        <div class="cd-s" id="cd-s"></div>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active" id="pg-accueil">
+      <div class="welcome">
+        <div class="wt"><h2 id="greeting">Bonjour — Votre tableau de bord</h2><p>Coach Bac Français &amp; Grand Oral · Stratégie LinkedIn · Tracker 90 jours</p></div>
+        <div class="ws-row">
+          <div class="ws"><div class="ws-v" id="w-days">—</div><div class="ws-l">jours Bac</div></div>
+          <div class="ws"><div class="ws-v" id="w-todo">0%</div><div class="ws-l">to-do</div></div>
+          <div class="ws"><div class="ws-v" id="w-ca">0 €</div><div class="ws-l">CA moy.</div></div>
+        </div>
+      </div>
+      <div class="frise">
+        <div class="frise-hd">
+          <div><div class="frise-title">Frise chronologique — Stratégie Bac 2025</div><div class="frise-sub" id="frise-sub">Calcul en cours…</div></div>
+          <div class="frise-stats">
+            <div><div class="frise-days-n" id="f-days">—</div><div class="frise-days-l">jours restants</div></div>
+            <div class="frise-circ"><div class="frise-circ-n" id="f-pct">—</div><div class="frise-circ-l">écoulé</div></div>
+          </div>
+        </div>
+        <div class="frise-axis-wrap">
+          <div class="frise-axis-bg"><div class="frise-axis-fill" id="f-fill" style="width:0%"></div></div>
+          <div class="frise-pin" id="f-pin" style="left:0%"><div class="frise-pin-lbl">Aujourd'hui</div></div>
+        </div>
+        <div class="frise-ms-row" id="f-ms"></div>
+        <div class="frise-phases">
+          <div class="frise-phase fp1"><div class="fp-name">Fondations</div><div class="fp-wk">Sem. 1</div></div>
+          <div class="frise-phase fp2"><div class="fp-name">Lancement</div><div class="fp-wk">Sem. 2</div></div>
+          <div class="frise-phase fp3"><div class="fp-name">Intensification</div><div class="fp-wk">Sem. 3</div></div>
+          <div class="frise-phase fp4"><div class="fp-name">Conversion</div><div class="fp-wk">Sem. 4</div></div>
+          <div class="frise-phase fp5"><div class="fp-name">Bac de Français</div><div class="fp-wk">Juin 2025</div></div>
+        </div>
+        <div class="frise-div"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:10px">Niveaux de priorité des actions</div>
+        <div class="prio-row">
+          <div class="prio-card" style="border-top:2px solid var(--red)"><div class="prio-top"><div class="prio-dot" style="background:var(--red)"></div><div class="prio-lv">Critique</div></div><div class="prio-desc">Action immédiate — bloque la suite</div><div class="prio-ex">Titre LinkedIn · Bannière</div></div>
+          <div class="prio-card" style="border-top:2px solid var(--accent)"><div class="prio-top"><div class="prio-dot" style="background:var(--accent)"></div><div class="prio-lv">Urgent</div></div><div class="prio-desc">À lancer cette semaine</div><div class="prio-ex">1er post · Section Infos</div></div>
+          <div class="prio-card" style="border-top:2px solid var(--gold)"><div class="prio-top"><div class="prio-dot" style="background:var(--gold)"></div><div class="prio-lv">Important</div></div><div class="prio-desc">Sous 2 semaines</div><div class="prio-ex">10 connexions/j · DM</div></div>
+          <div class="prio-card" style="border-top:2px solid var(--green)"><div class="prio-top"><div class="prio-dot" style="background:var(--green)"></div><div class="prio-lv">Planifié</div></div><div class="prio-desc">En cours — dans le plan</div><div class="prio-ex">Commentaires · Posts</div></div>
+          <div class="prio-card" style="border-top:2px solid var(--ink4)"><div class="prio-top"><div class="prio-dot" style="background:var(--ink4)"></div><div class="prio-lv">À venir</div></div><div class="prio-desc">Semaine 3 et après</div><div class="prio-ex">Appels · Places limitées</div></div>
+        </div>
+      </div>
+      <div class="g4">
+        <div class="met m-ac"><div class="m-lbl">Jours avant le Bac</div><div class="m-val" id="m-days">—</div><div class="m-sub">Bac Français — juin 2025</div></div>
+        <div class="met m-go"><div class="m-lbl">CA total cumulé</div><div class="m-val" id="m-ca">0 €</div><div class="m-sub">Objectif : 4 000 €/mois</div></div>
+        <div class="met m-gr"><div class="m-lbl">Progression to-do</div><div class="m-val" id="m-todo">0%</div><div class="m-sub" id="m-todo-sub">0/12 tâches</div><div class="prog"><div class="prog-f green" id="m-prog" style="width:0%"></div></div></div>
+        <div class="met m-bl"><div class="m-lbl">Objectifs 90 jours</div><div class="m-val" id="m-obj">0/4</div><div class="m-sub">objectifs atteints</div></div>
+      </div>
+      <div class="qa">
+        <div class="qa-card" onclick="nav('tracker')"><div class="qa-ic" style="background:var(--gold-light)">📋</div><div class="qa-t">Tracker 90 jours</div><div class="qa-s">Objectifs &amp; revenus</div></div>
+        <div class="qa-card" onclick="nav('linkedin')"><div class="qa-ic" style="background:var(--blue-light)">💼</div><div class="qa-t">Stratégie LinkedIn</div><div class="qa-s">Actions &amp; contenu</div></div>
+        <div class="qa-card" onclick="nav('connexions')"><div class="qa-ic" style="background:var(--accent-light)">🔗</div><div class="qa-t">Connexions LI/90j</div><div class="qa-s">Actions → objectifs</div></div>
+        <div class="qa-card" onclick="nav('todo')"><div class="qa-ic" style="background:var(--green-light)">✅</div><div class="qa-t">To-do list</div><div class="qa-s" id="qa-todo-sub">0/12 faites</div></div>
+        <div class="qa-card" onclick="nav('prompts')"><div class="qa-ic" style="background:var(--paper3)">💬</div><div class="qa-t">Prompts Gemini</div><div class="qa-s">4 prompts prêts</div></div>
+        <div class="qa-card" onclick="nav('journal')"><div class="qa-ic" style="background:var(--paper3)">📓</div><div class="qa-t">Journal quotidien</div><div class="qa-s">Notes &amp; réflexions</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><h3 style="font-size:16px;margin-bottom:3px">CA mensuel</h3><p style="font-size:11px;color:var(--ink3);margin-bottom:12px">Revenus déclarés (6 premiers mois)</p><svg id="ca-chart" class="chart-svg" viewBox="0 0 400 140" height="140"></svg></div>
+        <div class="card"><h3 style="font-size:16px;margin-bottom:3px">Top 3 actions immédiates</h3><p style="font-size:11px;color:var(--ink3);margin-bottom:12px">Urgence saisonnière — Bac juin 2025</p>
+          <div style="display:flex;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--paper3);margin-bottom:12px"><div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--accent);opacity:.3;line-height:1;flex-shrink:0">01</div><div><p style="font-weight:700;font-size:13px;margin-bottom:2px">Optimiser titre LinkedIn</p><p style="font-size:12px;color:var(--ink3)">Publicité gratuite sur chaque commentaire.</p></div></div>
+          <div style="display:flex;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--paper3);margin-bottom:12px"><div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--accent);opacity:.3;line-height:1;flex-shrink:0">02</div><div><p style="font-weight:700;font-size:13px;margin-bottom:2px">Publier 3 conseils actionnables</p><p style="font-size:12px;color:var(--ink3)">Contenu gratuit → confiance → vente.</p></div></div>
+          <div style="display:flex;gap:12px"><div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--accent);opacity:.3;line-height:1;flex-shrink:0">03</div><div><p style="font-weight:700;font-size:13px;margin-bottom:2px">Commenter posts parents/écoles</p><p style="font-size:12px;color:var(--ink3)">Audience qualifiée empruntée gratuitement.</p></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="pg-tracker"><div class="ph"><h2>Tracker 90 jours</h2><p>Objectifs business · Revenus mensuels · Progression</p></div><div id="obj-list"></div><h3 style="font-size:16px;margin:4px 0 14px">Revenus mensuels déclarés</h3><div class="card"><svg id="rev-chart" class="chart-svg" viewBox="0 0 500 150" height="150"></svg><div id="rev-list" style="margin-top:16px"></div></div></div>
+    <div class="page" id="pg-linkedin"><div class="ph"><h2>Stratégie LinkedIn</h2><p>Plan d'actions · Calendrier · Projections</p></div><div class="tbl"><table><thead><tr><th>#</th><th>Action</th><th>Durée</th><th>Crédibilité</th><th>Performance</th><th>Priorité</th></tr></thead><tbody id="li-table"></tbody></table></div><h3 style="font-size:16px;margin-bottom:14px">Calendrier 4 semaines</h3><div class="weeks" id="weeks-grid"></div><div class="card"><h3 style="font-size:16px;margin-bottom:3px">Projections — vues profil &amp; RDV</h3><p style="font-size:11px;color:var(--ink3);margin-bottom:12px">Estimation sur 6 semaines</p><svg id="proj-chart" class="chart-svg" viewBox="0 0 500 160" height="160"></svg></div></div>
+    <div class="page" id="pg-connexions"><div class="ph"><h2>Connexions LinkedIn → Objectifs 90j</h2><p>Comment chaque action LinkedIn contribue à vos objectifs business</p></div><div id="lnk-list"></div><div class="card"><h3 style="font-size:16px;margin-bottom:14px">Priorités combinées cette semaine</h3><div id="combined-list"></div></div></div>
+    <div class="page" id="pg-todo"><div class="ph"><h2>To-do list LinkedIn</h2><p>Cochez chaque tâche — sauvegarde automatique</p></div><div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:16px"><div style="flex:1"><p style="font-size:13px;font-weight:700;margin-bottom:6px" id="todo-header">0/12 tâches</p><div class="prog"><div class="prog-f green" id="todo-prog" style="width:0%"></div></div></div><span class="badge b-gray" id="todo-pct">0%</span></div><div class="card" id="todo-list"></div></div>
+    <div class="page" id="pg-prompts"><div class="ph"><h2>Prompts Gemini</h2><p>4 prompts optimisés pour votre coaching scolaire premium</p></div><div class="prompt-dark"><h3>Prompts prêts à l'emploi</h3><p>Sélectionnez, copiez et collez directement dans Gemini Pro</p><select class="p-sel" id="p-sel" onchange="updatePrompt()"><option value="titre">Optimiser mon titre LinkedIn</option><option value="post">Générer un post LinkedIn viral</option><option value="dm">Rédiger un message DM de prospection</option><option value="relance">Relance pour appel découverte</option></select><div class="p-out" id="p-out"></div><button class="copy-btn" id="copy-btn" onclick="copyPrompt()">Copier ce prompt</button></div><div class="card"><h3 style="font-size:16px;margin-bottom:14px">Mode d'emploi en 3 étapes</h3><div class="g3"><div style="display:flex;gap:12px"><div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);opacity:.25;line-height:1;flex-shrink:0">01</div><div><p style="font-weight:700;font-size:13px;margin-bottom:3px">Choisir</p><p style="font-size:12px;color:var(--ink3)">Sélectionnez la situation dans le menu.</p></div></div><div style="display:flex;gap:12px"><div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);opacity:.25;line-height:1;flex-shrink:0">02</div><div><p style="font-weight:700;font-size:13px;margin-bottom:3px">Coller dans Gemini</p><p style="font-size:12px;color:var(--ink3)">Ouvrez gemini.google.com et envoyez.</p></div></div><div style="display:flex;gap:12px"><div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);opacity:.25;line-height:1;flex-shrink:0">03</div><div><p style="font-weight:700;font-size:13px;margin-bottom:3px">Ajuster &amp; publier</p><p style="font-size:12px;color:var(--ink3)">Personnalisez avec vos vrais détails.</p></div></div></div></div></div>
+    <div class="page" id="pg-journal"><div class="ph"><h2>Journal quotidien</h2><p>Notes, réflexions, actions du jour — sauvegarde automatique</p></div><div class="g2"><div><p style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Entrées récentes</p><div id="journal-entries"></div></div><div><p style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px" id="j-active-date">Aujourd'hui</p><textarea id="j-textarea" placeholder="Notez vos actions du jour, vos réflexions, les retours de prospects…" oninput="saveJournal()"></textarea><p style="font-size:11px;color:var(--ink4);text-align:right;margin-top:5px" id="j-count"></p></div></div></div>
+  </main>
+</div>
+<script>
+const BAC=new Date('2025-06-18T08:00:00'),START=new Date('2025-03-20');
+const MOIS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const PROMPTS={
+  titre:"Tu es un expert en copywriting LinkedIn pour le marché français de l'éducation premium.\n\nRédige 5 titres LinkedIn percutants pour un coach scolaire spécialisé en Bac de Français et Grand Oral.\n\nCible : parents CSP+ anxieux pour la réussite de leur enfant, prêts à investir.\nTon : coach bienveillant, expert, rassurant.\nFormat : une promesse de résultat mesurable par titre.\nLongueur max : 220 caractères par titre.\nMéthode : structure AIDA.",
+  post:"Tu es un expert en marketing de contenu LinkedIn pour un coach scolaire premium.\n\nRédige un post LinkedIn viral : \"Les 3 erreurs fatales que commettent les élèves au Grand Oral du Bac\".\n\nFormat :\n- Accroche choc sur 1 ligne\n- 3 points développés avec empathie\n- Conseil actionnable pour chaque point\n- Call-to-action bienveillant\n\nTon : coach scolaire expert et bienveillant.\nLongueur : 1200-1500 caractères.",
+  dm:"Tu es un expert en prospection LinkedIn douce et éthique.\n\nRédige un DM LinkedIn pour un parent CSP+ qui a liké ou commenté un de mes posts sur le Bac Français.\n\nRègles :\n- Pas de vente directe dans ce 1er message\n- Personnaliser en montrant qu'on a lu leur commentaire\n- Proposer une valeur gratuite\n- Finir par une question ouverte\n- Ton chaleureux et humain\n\nLongueur : 80-120 mots maximum.",
+  relance:"Tu es un expert en conversion client dans le secteur du coaching éducatif premium.\n\nRédige un message de relance LinkedIn pour proposer un appel découverte de 15 min à un parent intéressé mais sans réponse.\n\nÉléments :\n- Rappel du contexte\n- Valeur de l'appel (évaluation gratuite niveau enfant)\n- Urgence douce liée au Bac de juin\n- 1 seule relance, ton non-intrusif\n\nLongueur : 100-140 mots."
+};
+const LI=[
+  {r:1,n:'Optimisation titre LinkedIn',d:'Prompt Gemini inclus',t:'1h30',c:5,p:4,pr:'urgent'},
+  {r:2,n:'Publications actionnables',d:'3-4 posts/sem via Gemini',t:'45 min/sem',c:3,p:5,pr:'urgent'},
+  {r:3,n:'Commentaires "Expert"',d:'#Bac2026, parents, écoles',t:'20 min/j',c:4,p:4,pr:'urgent'},
+  {r:4,n:'Message direct leads chauds',d:'Ceux qui commentent',t:'20 min/j',c:3,p:5,pr:'soon'},
+  {r:5,n:'Invitation connexion',d:'Parents CSP+, 10/jour',t:'10 min/j',c:3,p:3,pr:'soon'},
+  {r:6,n:'Appel découverte 15 min',d:'Qualifier le besoin',t:'15 min/appel',c:5,p:5,pr:'later'},
+];
+const WEEKS=[
+  {n:'Semaine 1',th:'Fondations',t:['Titre + bannière LinkedIn','Section Infos rédigée','1er post expert publié','10 commentaires/jour']},
+  {n:'Semaine 2',th:'Lancement',t:['3 posts thématiques','10 connexions/jour','Messages bienvenue','Analyse visiteurs profil']},
+  {n:'Semaine 3',th:'Intensification',t:['Post Grand Oral (étude de cas)','DM leads chauds','Relance connexions','Proposer appel 15 min']},
+  {n:'Semaine 4',th:'Conversion',t:['Post "Places limitées"','Focus appels découverte','Suivi devis','Bilan + ajustement']},
+];
+const OBJECTIFS=[
+  {id:'o1',title:'Atteindre 5 clients/mois',sub:'Cours collectifs Bac Français',max:5,unit:'clients'},
+  {id:'o2',title:'Générer 4 000 € de CA mensuel',sub:'Panier moyen 800 €',max:4000,unit:'€'},
+  {id:'o3',title:'Construire audience LinkedIn',sub:'Profil expert reconnu',max:500,unit:'connexions'},
+  {id:'o4',title:'Publier 3 posts/semaine',sub:'Contenu expert bienveillant',max:12,unit:'posts/mois'},
+];
+const LNK=[
+  {li:'Optimisation titre LinkedIn',obj:'Construire audience LinkedIn',impact:'Bases visibilité'},
+  {li:'Publications actionnables',obj:'Publier 3 posts/semaine',impact:'Contenu régulier'},
+  {li:'Commentaires experts',obj:'Construire audience LinkedIn',impact:'+connexions qualif.'},
+  {li:'Messages directs leads',obj:'Atteindre 5 clients/mois',impact:'Conversion directe'},
+  {li:'Appels découverte 15 min',obj:'Générer 4 000 € CA mensuel',impact:'Ventes confirmées'},
+];
+const TODO_PHASES=[
+  {phase:'Phase 1 — Configuration (Jours 1-2)',items:[
+    {id:'t1',text:'Rédiger nouveau titre LinkedIn avec Gemini',meta:'20 min · Critique'},
+    {id:'t2',text:'Créer bannière Canva avec promesse de résultat',meta:'30 min · Critique'},
+    {id:'t3',text:'Rédiger section Infos LinkedIn : méthode + résultats + lien',meta:'40 min · Urgent'},
+    {id:'t4',text:'Publier le 1er post expert "3 erreurs fatales au Grand Oral"',meta:'30 min · Urgent'},
+  ]},
+  {phase:'Phase 2 — Routine quotidienne (60-90 min/jour)',items:[
+    {id:'t5',text:'Commenter 5-10 posts sur #Bac2026, #Parentalité, #Éducation',meta:'20 min · Planifié'},
+    {id:'t6',text:'Générer plan de post avec Gemini et publier',meta:'30 min · Planifié'},
+    {id:'t7',text:'Envoyer 10 invitations personnalisées parents CSP+',meta:'10 min · Important'},
+    {id:'t8',text:'Contacter les visiteurs du profil (message de bienvenue)',meta:'10 min · Important'},
+  ]},
+  {phase:'Phase 3 — Conversion (hebdomadaire)',items:[
+    {id:'t9',text:'Identifier leads chauds (commentaires sur posts) → DM',meta:'30 min · Important'},
+    {id:'t10',text:'Proposer appel découverte 15 min gratuit',meta:'Message DM · À venir'},
+    {id:'t11',text:'Relancer contacts sans réponse après 5 jours',meta:'10 min · À venir'},
+    {id:'t12',text:'Post urgence "Places limitées avant le Bac"',meta:'Semaine 4 · À venir'},
+  ]},
+];
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var STATE={
+  todos:ld('cb2_todos',{}),
+  objProg:ld('cb2_obj',[0,0,0,0]),
+  revenue:ld('cb2_rev',MOIS.map(function(m){return{m:m,v:0}})),
+  journal:ld('cb2_journal',{}),
+  curWeek:0,
+  jDate:new Date().toISOString().split('T')[0]
+};
+function dL(){return Math.max(0,Math.ceil((BAC-new Date())/864e5));}
+function dP(){var tot=(BAC-START)/864e5,el=Math.max(0,Math.min(tot,(new Date()-START)/864e5));return Math.round(el/tot*100);}
+function dPos(d){return Math.max(0,Math.min(100,(d-START)/(BAC-START)*100));}
+function fmtD(s){var d=new Date(s+'T12:00:00');return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
+function starsH(n){var h='<div class="stars">';for(var i=0;i<5;i++)h+='<div class="star '+(i<n?'on':'off')+'"></div>';return h+'</div>';}
+function bdg(p){return p==='urgent'?'<span class="badge b-red">Urgent</span>':p==='soon'?'<span class="badge b-gold">Sem. 2+</span>':'<span class="badge b-gray">Sem. 3+</span>';}
+function drawBar(id,data,color,W,H){
+  var svg=document.getElementById(id);if(!svg)return;
+  var max=0;for(var i=0;i<data.length;i++)if(data[i].v>max)max=data[i].v;if(!max)max=1;
+  var PL=28,PR=6,PT=8,PB=22,h='';
+  [0,.5,1].forEach(function(t){var y=PT+(H-PT-PB)*(1-t);h+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y+'" y2="'+y+'" stroke="#ece8e0" stroke-width="0.8"/>';h+='<text x="'+(PL-3)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="#b0aa9f">'+Math.round(max*t)+'</text>';});
+  var cw=(W-PL-PR)/data.length,bw=Math.min(cw*.6,30);
+  data.forEach(function(d,i){var bh=Math.max((d.v/max)*(H-PT-PB),2),x=PL+i*cw+(cw-bw)/2,y=H-PB-bh;h+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" fill="'+color+'" rx="3" opacity="0.85"/>';h+='<text x="'+(x+bw/2)+'" y="'+(H-PB+14)+'" text-anchor="middle" font-size="9" fill="#b0aa9f">'+d.l+'</text>';});
+  svg.innerHTML=h;
+}
+function drawLine(id,dsets,W,H){
+  var svg=document.getElementById(id);if(!svg)return;
+  var max=0;dsets.forEach(function(ds){ds.data.forEach(function(p){if(p.v>max)max=p.v;});});if(!max)max=1;
+  var PL=32,PR=6,PT=18,PB=20,h='',xStep=(W-PL-PR)/(dsets[0].data.length-1||1);
+  [0,.5,1].forEach(function(t){var y=PT+(H-PT-PB)*(1-t);h+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y+'" y2="'+y+'" stroke="#ece8e0" stroke-width="0.8"/>';h+='<text x="'+(PL-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="#b0aa9f">'+Math.round(max*t)+'</text>';});
+  dsets.forEach(function(ds,di){var pts=ds.data.map(function(p,i){return (PL+i*xStep)+','+(PT+(H-PT-PB)*(1-p.v/max));}).join(' ');h+='<polyline points="'+pts+'" fill="none" stroke="'+ds.color+'" stroke-width="2" stroke-linejoin="round"/>';h+='<line x1="'+(PL+di*110)+'" x2="'+(PL+di*110+14)+'" y1="8" y2="8" stroke="'+ds.color+'" stroke-width="1.5"/>';h+='<text x="'+(PL+di*110+18)+'" y="12" font-size="9" fill="#7c776e">'+ds.label+'</text>';});
+  dsets[0].data.forEach(function(p,i){h+='<text x="'+(PL+i*xStep)+'" y="'+(H-PB+14)+'" text-anchor="middle" font-size="9" fill="#b0aa9f">'+p.l+'</text>';});
+  svg.innerHTML=h;
+}
+function nav(page){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');});
+  var pg=document.getElementById('pg-'+page);if(pg)pg.classList.add('active');
+  var btn=document.querySelector('[data-page="'+page+'"]');if(btn)btn.classList.add('on');
+  renderPage(page);
+}
+document.querySelectorAll('.s-btn').forEach(function(btn){btn.addEventListener('click',function(){nav(btn.dataset.page);});});
+function initFrise(){
+  var dl=dL(),pct=dP(),now=new Date();
+  var el;
+  el=document.getElementById('f-days');if(el)el.textContent=dl;
+  el=document.getElementById('f-pct');if(el)el.textContent=pct+'%';
+  el=document.getElementById('f-fill');if(el)el.style.width=pct+'%';
+  el=document.getElementById('f-pin');if(el)el.style.left=dPos(now)+'%';
+  el=document.getElementById('frise-sub');if(el)el.textContent='Démarrage 20 mars · Bac Français 18 juin · '+dl+' jours restants · Avancement : '+pct+'%';
+  var ms=[
+    {date:new Date('2025-03-20'),name:'Démarrage',sub:'20 mars',cls:'fms-past'},
+    {date:new Date('2025-03-27'),name:'Sem. 1 — Fondations',sub:'27 mars',cls:'fms-past'},
+    {date:new Date('2025-04-03'),name:'Sem. 2 — Lancement',sub:'3 avr.',cls:now>new Date('2025-04-03')?'fms-past':'fms-now'},
+    {date:new Date('2025-04-10'),name:'Sem. 3 — Intensif.',sub:'10 avr.',cls:'fms-future'},
+    {date:new Date('2025-04-17'),name:'Sem. 4 — Conversion',sub:'17 avr.',cls:'fms-future'},
+    {date:new Date('2025-05-01'),name:'1ers clients',sub:'1er mai',cls:'fms-future'},
+    {date:new Date('2025-06-01'),name:'Urgence Bac',sub:'1er juin',cls:'fms-crit'},
+    {date:new Date('2025-06-18'),name:'BAC FRANÇAIS',sub:'18 juin',cls:'fms-crit'},
+  ];
+  var row=document.getElementById('f-ms');if(!row)return;row.innerHTML='';
+  ms.forEach(function(m){var d=document.createElement('div');d.className='frise-ms '+m.cls;d.style.left=dPos(m.date)+'%';d.innerHTML='<div class="frise-ms-dot"></div><div class="frise-ms-stem"></div><div class="frise-ms-card"><div class="frise-ms-name">'+m.name+'</div><div class="frise-ms-date">'+m.sub+'</div></div>';row.appendChild(d);});
+}
+function updateKPIs(){
+  var dl=dL(),allT=TODO_PHASES.reduce(function(a,p){return a.concat(p.items);},[]);
+  var done=allT.filter(function(t){return STATE.todos[t.id];}).length;
+  var pct=Math.round(done/allT.length*100);
+  var totalCA=STATE.revenue.reduce(function(s,r){return s+r.v;},0);
+  var wCA=STATE.revenue.filter(function(r){return r.v>0;});
+  var avgCA=wCA.length?Math.round(totalCA/wCA.length):0;
+  var objDone=OBJECTIFS.filter(function(o,i){return STATE.objProg[i]>=o.max;}).length;
+  var h=new Date().getHours();
+  var el;
+  el=document.getElementById('greeting');if(el)el.textContent=(h<12?'Bonjour':'Bonsoir')+' — Votre tableau de bord';
+  ['cd-n','f-days','m-days','w-days'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=dl;});
+  el=document.getElementById('cd-s');if(el)el.textContent=done+'/'+allT.length+' tâches LinkedIn';
+  el=document.getElementById('w-todo');if(el)el.textContent=pct+'%';
+  el=document.getElementById('w-ca');if(el)el.textContent=avgCA.toLocaleString('fr')+'€';
+  el=document.getElementById('m-todo');if(el)el.textContent=pct+'%';
+  el=document.getElementById('m-todo-sub');if(el)el.textContent=done+'/'+allT.length+' tâches';
+  el=document.getElementById('m-prog');if(el)el.style.width=pct+'%';
+  el=document.getElementById('m-ca');if(el)el.textContent=totalCA.toLocaleString('fr')+' €';
+  el=document.getElementById('m-obj');if(el)el.textContent=objDone+'/'+OBJECTIFS.length;
+  el=document.getElementById('qa-todo-sub');if(el)el.textContent=done+'/'+allT.length+' faites';
+  el=document.getElementById('todo-header');if(el)el.textContent=done+'/'+allT.length+' tâches complétées';
+  el=document.getElementById('todo-prog');if(el)el.style.width=pct+'%';
+  el=document.getElementById('todo-pct');if(el){el.textContent=pct+'%';el.className='badge '+(pct>=100?'b-green':pct>=50?'b-gold':'b-gray');}
+}
+function drawCharts(){
+  drawBar('ca-chart',STATE.revenue.slice(0,6).map(function(r){return{v:r.v,l:r.m};}),'#9a7c35',400,140);
+  drawBar('rev-chart',STATE.revenue.map(function(r){return{v:r.v,l:r.m};}),'#9a7c35',500,150);
+  var proj=[{n:'S1',vu:12,rd:0},{n:'S2',vu:45,rd:0},{n:'S3',vu:130,rd:2},{n:'S4',vu:280,rd:5},{n:'S5',vu:480,rd:8},{n:'S6',vu:720,rd:12}];
+  drawLine('proj-chart',[
+    {data:proj.map(function(p){return{v:p.vu,l:p.n};}),color:'#b85c1a',label:'Vues profil'},
+    {data:proj.map(function(p){return{v:p.rd,l:p.n};}),color:'#2a5e42',label:'RDV/sem'},
+  ],500,160);
+}
+function renderPage(page){
+  if(page==='accueil')drawCharts();
+  else if(page==='tracker')renderTracker();
+  else if(page==='linkedin')renderLinkedIn();
+  else if(page==='connexions')renderConnexions();
+  else if(page==='todo')renderTodo();
+  else if(page==='prompts')updatePrompt();
+  else if(page==='journal')renderJournal();
+}
+function renderTracker(){
+  var list=document.getElementById('obj-list');
+  if(list)list.innerHTML=OBJECTIFS.map(function(o,i){var v=STATE.objProg[i]||0,pct=Math.min(100,Math.round(v/o.max*100)),bcls=pct>=100?'b-green':pct>=50?'b-gold':'b-gray';return '<div class="obj-card"><div class="obj-hd"><div class="obj-n">0'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">'+o.title+'</div><div style="font-size:12px;color:var(--ink3)">'+o.sub+'</div></div><span class="badge '+bcls+'">'+pct+'%</span></div><div class="prog"><div class="prog-f '+(pct>=100?'green':'gold')+'" style="width:'+pct+'%"></div></div><div style="display:flex;align-items:center;gap:10px;margin-top:9px"><span style="font-size:12px;color:var(--ink3)">'+v+' / '+o.max+' '+o.unit+'</span><input type="number" value="'+v+'" min="0" style="width:90px" onchange="updateObj('+i+',this.value)"/><span style="font-size:11px;color:var(--ink3);margin-left:auto">Cible : '+o.max+' '+o.unit+'</span></div></div>';}).join('');
+  var rl=document.getElementById('rev-list');
+  if(rl)rl.innerHTML=STATE.revenue.map(function(r,i){return '<div class="rev-row"><div class="rev-m">'+r.m+'</div><div class="rev-bar-w"><div class="rev-bar" style="width:'+Math.min(100,r.v/60)+'%"></div></div><div style="font-size:12px;color:var(--ink2);min-width:70px;text-align:right">'+r.v.toLocaleString('fr')+' €</div><span class="badge '+(r.v>=4000?'b-green':r.v>0?'b-gold':'b-gray')+'" style="min-width:52px;text-align:center">'+(r.v>=4000?'✓ Objectif':r.v>0?'En cours':'—')+'</span><input type="number" value="'+r.v+'" min="0" style="width:82px" onchange="updateRev('+i+',this.value)"/></div>';}).join('');
+  drawCharts();
+}
+function renderLinkedIn(){
+  var tb=document.getElementById('li-table');
+  if(tb)tb.innerHTML=LI.map(function(a){return '<tr><td style="font-weight:700;color:var(--ink3);font-size:11px">0'+a.r+'</td><td><p style="font-weight:700;font-size:13px;margin-bottom:2px">'+a.n+'</p><p style="font-size:11px;color:var(--ink3)">'+a.d+'</p></td><td style="font-size:12px;white-space:nowrap">'+a.t+'</td><td>'+starsH(a.c)+'</td><td>'+starsH(a.p)+'</td><td>'+bdg(a.pr)+'</td></tr>';}).join('');
+  var wg=document.getElementById('weeks-grid');
+  if(wg)wg.innerHTML=WEEKS.map(function(w,i){return '<div class="wk '+(i===STATE.curWeek?'sel':'')+'" onclick="selWeek('+i+')"><div class="wk-head"><div class="wk-num">'+w.n+'</div><div class="wk-theme">'+w.th+'</div></div><div class="wk-tasks">'+w.t.map(function(t){return '<div class="wk-task"><span style="opacity:.4">›</span>'+t+'</div>';}).join('')+'</div></div>';}).join('');
+  drawCharts();
+}
+function renderConnexions(){
+  var ll=document.getElementById('lnk-list');
+  if(ll)ll.innerHTML=LNK.map(function(c){return '<div class="lnk-card"><div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:160px"><span class="ltag lt-li">Action LinkedIn</span><p style="font-size:13px;font-weight:700;color:var(--ink);margin-top:4px">'+c.li+'</p></div><div style="font-size:18px;color:var(--ink4);align-self:center;padding:0 6px">→</div><div style="flex:1;min-width:160px"><span class="ltag lt-obj">Objectif 90j</span><p style="font-size:13px;font-weight:700;color:var(--ink);margin-top:4px">'+c.obj+'</p></div><span class="badge b-green" style="align-self:center">'+c.impact+'</span></div></div>';}).join('');
+  var cl=document.getElementById('combined-list');
+  if(cl)cl.innerHTML=[
+    {n:'01',t:"Publier un post avec témoignage ou résultat d'élève",impact:'LinkedIn + CA',why:'Preuve sociale = confiance = vente'},
+    {n:'02',t:'Contacter parents qui commentent → proposer appel',impact:'LinkedIn + Clients',why:'Conversion directe leads chauds'},
+    {n:'03',t:'Post "Urgence Bac" avec lien inscription cours',impact:'CA + Saisonnalité',why:"Urgence juin crée la décision d'achat"},
+  ].map(function(it,i){return '<div style="display:flex;gap:14px;align-items:flex-start;padding-bottom:'+(i<2?'14px':'0')+';border-bottom:'+(i<2?'1px solid var(--paper3)':'none')+';margin-bottom:'+(i<2?'14px':'0')+'"><div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--accent);opacity:.28;line-height:1;flex-shrink:0">'+it.n+'</div><div style="flex:1"><p style="font-weight:700;font-size:13px;margin-bottom:3px">'+it.t+'</p><p style="font-size:12px;color:var(--ink3)">'+it.why+'</p></div><span class="badge b-gold" style="flex-shrink:0">'+it.impact+'</span></div>';}).join('');
+}
+function renderTodo(){
+  var list=document.getElementById('todo-list');
+  if(!list)return;
+  list.innerHTML=TODO_PHASES.map(function(ph){return '<div class="ph-hd">'+ph.phase+'</div>'+ph.items.map(function(item){return '<div class="todo-item" onclick="toggleTodo(\''+item.id+'\')"><div class="chk '+(STATE.todos[item.id]?'on':'')+'">'+(STATE.todos[item.id]?'✓':'')+'</div><div style="flex:1"><div class="td-txt '+(STATE.todos[item.id]?'done':'')+'">'+item.text+'</div><div class="td-meta">'+item.meta+'</div></div></div>';}).join('');}).join('');
+}
+function renderJournal(){
+  var today=new Date().toISOString().split('T')[0];
+  var dates=[today];
+  Object.keys(STATE.journal).forEach(function(k){if(STATE.journal[k]&&k!==today)dates.push(k);});
+  dates.sort(function(a,b){return b.localeCompare(a);});dates=dates.slice(0,8);
+  var en=document.getElementById('journal-entries');
+  if(en)en.innerHTML=dates.map(function(d){return '<div class="j-entry '+(d===STATE.jDate?'sel':'')+'" onclick="selJDate(\''+d+'\')"><div class="j-date">'+fmtD(d)+(d===today?" — Aujourd'hui":'')+'</div><div class="j-prev '+(STATE.journal[d]?'':'j-empty')+'">'+(STATE.journal[d]?STATE.journal[d].slice(0,70)+(STATE.journal[d].length>70?'…':''):"Aucune note")+'</div></div>';}).join('');
+  var ta=document.getElementById('j-textarea');if(ta)ta.value=STATE.journal[STATE.jDate]||'';
+  var ad=document.getElementById('j-active-date');if(ad)ad.textContent=fmtD(STATE.jDate)+(STATE.jDate===today?" — Aujourd'hui":'');
+  var jc=document.getElementById('j-count');if(jc){var txt=STATE.journal[STATE.jDate]||'';jc.textContent=txt?txt.length+' caractères · Sauvegardé':'';}
+}
+function toggleTodo(id){STATE.todos[id]=!STATE.todos[id];sv('cb2_todos',STATE.todos);updateKPIs();renderTodo();}
+function updateObj(i,val){STATE.objProg[i]=Math.max(0,parseInt(val)||0);sv('cb2_obj',STATE.objProg);updateKPIs();renderTracker();}
+function updateRev(i,val){STATE.revenue[i].v=Math.max(0,parseInt(val)||0);sv('cb2_rev',STATE.revenue);updateKPIs();renderTracker();}
+function selWeek(i){STATE.curWeek=i;renderLinkedIn();}
+function saveJournal(){var ta=document.getElementById('j-textarea');if(!ta)return;STATE.journal[STATE.jDate]=ta.value;sv('cb2_journal',STATE.journal);var jc=document.getElementById('j-count');if(jc)jc.textContent=ta.value?ta.value.length+' caractères · Sauvegardé':'';}
+function selJDate(d){STATE.jDate=d;renderJournal();}
+function updatePrompt(){var s=document.getElementById('p-sel'),o=document.getElementById('p-out');if(s&&o)o.textContent=PROMPTS[s.value]||'';}
+function copyPrompt(){var o=document.getElementById('p-out'),b=document.getElementById('copy-btn');if(!o||!b)return;navigator.clipboard.writeText(o.textContent).then(function(){b.textContent='✓ Copié !';b.classList.add('ok');setTimeout(function(){b.textContent='Copier ce prompt';b.classList.remove('ok');},2000);});}
+initFrise();updateKPIs();drawCharts();updatePrompt();
+</script>
+</body>
+</html>
